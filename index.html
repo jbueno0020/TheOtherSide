@@ -1639,6 +1639,354 @@ SCENES['c2_s4'] = {
   nextLabel: 'CHAPTER 3: THE LUNCH TABLE',
 };
 
+/* ══════════════════════════════════════════════════
+   CHAPTER 3: "THE LUNCH TABLE"
+   Root Cause: Social Status / Peer Pressure / Belonging
+══════════════════════════════════════════════════ */
+
+SCENES['c3_s1'] = {
+  id: 'c3_s1',
+  bg: 'cafeteria',
+  bgMusic: 1,
+  location: 'TUESDAY · 12:05 PM · CAFETERIA',
+  chapterName: 'THE LUNCH TABLE',
+  title: 'Chapter 3: The Lunch Table',
+  chars: [
+    {type:'alex',  emotion:'neutral', label:'Alex'},
+    {type:'tyler', emotion:'happy',   label:'Tyler'},
+    {type:'maya',  emotion:'neutral', label:'Maya'},
+  ],
+  blocks: [
+    {type:'p', text:'The cafeteria is loud. It always is. Alex sets down the tray at Tyler and Maya\'s table — their table, the one with the best angle on the whole room.'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"Check it. Jordan just sat over there. Alone. Again."'},
+    {type:'p', text:'Tyler says it like it\'s funny. Like it\'s an invitation.'},
+    {type:'speech', speaker:'other', who:'Maya', text:'"Leave him alone, Tyler."'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"What? I\'m just saying. Dude doesn\'t talk to anyone. Weird."'},
+    {type:'callout', style:'info', title:'THE SOCIAL HIERARCHY', text:'Middle school cafeterias are some of the most status-conscious spaces on earth. Where you sit, who you sit with, and who you\'re seen treating as "lesser" are all social currency. Research shows that <b>peer approval is a primary motivator of bullying behavior</b> in grades 6–8 (Rodkin & Hodges, 2003).'},
+    {type:'p', text:'Tyler looks at Alex. There\'s a dare in it.'},
+  ],
+  next: 'c3_s2',
+};
+
+SCENES['c3_s2'] = {
+  id: 'c3_s2',
+  bg: 'cafeteria',
+  location: 'CAFETERIA · LUNCHTIME',
+  title: 'The Dare',
+  chars: [
+    {type:'alex',  emotion:'neutral', label:'Alex'},
+    {type:'tyler', emotion:'happy',   label:'Tyler'},
+  ],
+  blocks: [
+    {type:'p', text:'Tyler slides his phone across the table, keeping one finger on it. On the screen: a video. It\'s Jordan, from the hallway this morning, picking up the spilled lunch — someone filmed it.'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"I dare you to go over there and ask if you can sit with him. Make a big show of it. We\'ll film it."'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Tyler\'s dared me to do stuff before. When I went along with it, everyone laughed and it felt good for like a day. When I said no, he acted weird around me for a week."'},
+    {type:'callout', style:'consequence', title:'THE BYSTANDER TRAP', text:'When we participate in humiliating someone to keep our place in a group, we become what researchers call <b>"active bystanders"</b> — people who enable bullying through participation. But we also become less safe: if Tyler\'s cruelty has no limits for Jordan, what makes Alex think those limits exist for anyone else?'},
+    {type:'p', text:'Maya is looking at her phone. She knows what\'s happening. She\'s not going to step in.'},
+  ],
+  choices: [
+    {
+      id:'c3_go_along',
+      text: 'Go along with Tyler\'s dare. Walk over, make a scene. Keep your place at the table.',
+      cls: 'harm',
+      next: 'c3_s3_along',
+      insightDelta: 0,
+      sfx: 'neg',
+    },
+    {
+      id:'c3_refuse',
+      text: 'Say "I\'m not doing that" and eat your lunch. Deal with Tyler\'s mood.',
+      cls: 'help',
+      next: 'c3_s3_refuse',
+      insightDelta: 12,
+      sfx: 'pos',
+    },
+    {
+      id:'c3_deflect',
+      text: 'Change the subject. Distract Tyler with something else so Jordan stays out of it.',
+      cls: 'neut',
+      next: 'c3_s3_deflect',
+      insightDelta: 8,
+      sfx: 'pos',
+    },
+  ],
+};
+
+SCENES['c3_s3_along'] = {
+  id: 'c3_s3_along',
+  bg: 'cafeteria',
+  location: 'CAFETERIA',
+  title: 'What the Camera Doesn\'t Show',
+  chars: [
+    {type:'alex',   emotion:'angry',  label:'Alex'},
+    {type:'jordan', emotion:'crying', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'Alex walks over. Puts on a big fake smile. <em>"Hey, can I sit here? Oh wait — actually, I just remembered I have other friends."</em> Tyler and the table are cracking up.'},
+    {type:'p', text:'Jordan stares at the table. Doesn\'t say anything. Just stares at the table.'},
+    {type:'callout', style:'consequence', title:'JORDAN\'S SIDE', text:'What the camera captures: Alex walking away to laughter. What the camera misses: Jordan\'s hands are shaking. Jordan has changed schools twice in two years. Last school wasn\'t any better. Jordan has started eating faster to leave before anything can happen.'},
+    {type:'p', text:'Alex gets back to the table. High fives. Tyler\'s grinning. Maya is looking at something on the ceiling.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Why doesn\'t that feel as good as it used to?"'},
+    {type:'callout', style:'insight', title:'THE DIMINISHING RETURN', text:'Research shows that bullying gives a temporary dopamine reward — but over time, students need to escalate to get the same effect. The emptiness Alex is feeling? That\'s the beginning of something important.'},
+  ],
+  next: 'c3_s4',
+  nextLabel: 'CONTINUE',
+};
+
+SCENES['c3_s3_refuse'] = {
+  id: 'c3_s3_refuse',
+  bg: 'cafeteria',
+  location: 'CAFETERIA',
+  title: 'Standing Your Ground',
+  chars: [
+    {type:'alex',  emotion:'neutral', label:'Alex'},
+    {type:'tyler', emotion:'angry',   label:'Tyler'},
+  ],
+  blocks: [
+    {type:'speech', speaker:'alex', who:'Alex', text:'"I\'m not doing that."'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"Wow, okay. Didn\'t know you were friends with the freak."'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"I just said I\'m not doing it. Relax."'},
+    {type:'p', text:'Tyler goes quiet. It\'s awkward for about five minutes. Then someone from another table says something and the moment passes.'},
+    {type:'callout', style:'insight', title:'WHAT JUST HAPPENED', text:'Setting a limit with a peer who is pressuring you — even without a long speech or a dramatic confrontation — is a form of <b>assertiveness</b>. It often feels terrible in the moment and not as bad as you feared afterward. This is a protective factor against becoming a perpetrator.'},
+    {type:'p', text:'Jordan, across the cafeteria, eats alone. Alex doesn\'t know Jordan\'s name yet.'},
+  ],
+  next: 'c3_s4',
+};
+
+SCENES['c3_s3_deflect'] = {
+  id: 'c3_s3_deflect',
+  bg: 'cafeteria',
+  location: 'CAFETERIA',
+  title: 'The Pivot',
+  chars: [
+    {type:'alex',  emotion:'neutral', label:'Alex'},
+    {type:'tyler', emotion:'neutral', label:'Tyler'},
+    {type:'maya',  emotion:'neutral', label:'Maya'},
+  ],
+  blocks: [
+    {type:'speech', speaker:'alex', who:'Alex', text:'"Nah, I\'m not feeling it. Did you see the game last night? That last quarter was insane."'},
+    {type:'p', text:'Tyler gets pulled in. The moment passes. Jordan is never mentioned again at lunch.'},
+    {type:'callout', style:'insight', title:'BYSTANDER POWER', text:'Redirecting a group\'s attention away from a potential target is a real bullying-prevention skill called <b>distraction</b>. It\'s not perfect — it doesn\'t address the underlying dynamic — but it stops one specific incident from happening. Sometimes that matters.'},
+    {type:'p', text:'For now, Jordan finishes lunch and slips out early, relieved without knowing why.'},
+  ],
+  next: 'c3_s4',
+};
+
+SCENES['c3_s4'] = {
+  id: 'c3_s4',
+  bg: 'school_hall',
+  bgMusic: 2,
+  location: 'TUESDAY · 2:45 PM · END OF SCHOOL',
+  title: 'What Goes Home With You',
+  chars: [ {type:'alex', emotion:'sad', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'The buses line up. Students flood the exit. Alex walks slowly, watching the crowd.'},
+    {type:'p', text:'Jordan passes by with a backpack that looks too heavy for someone that small. Headphones in. Head down. Moving fast, like someone who\'s learned to be hard to see.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"I used to walk like that."'},
+    {type:'callout', style:'info', title:'PATTERN RECOGNITION', text:'Many students who bully have <b>also been bullied</b>. The experience of being victimized can lead to a desire to shift from "target" to "aggressor" as a form of self-protection. Understanding this cycle doesn\'t excuse the behavior — but it explains it.'},
+    {type:'p', text:'Alex\'s phone buzzes. Home screen: <em>"Mom: Sorry again, working late. Pizza money on counter."</em>'},
+    {type:'p', text:'The empty house is waiting.'},
+  ],
+  next: 'c4_s1',
+  nextLabel: 'CHAPTER 4: THE WEIGHT',
+};
+
+/* ══════════════════════════════════════════════════
+   CHAPTER 4: "THE WEIGHT"
+   Root Cause: Emotional Dysregulation / Trauma Response
+══════════════════════════════════════════════════ */
+
+SCENES['c4_s1'] = {
+  id: 'c4_s1',
+  bg: 'bedroom',
+  bgMusic: 2,
+  location: 'TUESDAY NIGHT · ALEX\'S APARTMENT',
+  chapterName: 'THE WEIGHT',
+  title: 'Chapter 4: The Weight',
+  chars: [ {type:'alex', emotion:'scared', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Alex is in the bedroom with the door shut. Through the wall: voices. Dad\'s home. That\'s unusual. And it\'s not a good visit.'},
+    {type:'speech', speaker:'other', who:'Dad (through wall)', text:'"...I told you, I can\'t keep doing this — the hours, the bills, all of it—"'},
+    {type:'speech', speaker:'other', who:'Mom (through wall)', text:'"...well what do you want me to do, quit? We\'re barely keeping—"'},
+    {type:'p', text:'Alex turns up the headphones. It doesn\'t help much.'},
+    {type:'callout', style:'consequence', title:'HOUSEHOLD STRESS & STUDENT BEHAVIOR', text:'Exposure to adult conflict at home — even non-violent conflict — activates a student\'s stress response system. Students who experience chronic household stress show <b>higher rates of emotional dysregulation</b>, which makes it harder to respond calmly to frustration, failure, or conflict at school. This isn\'t an excuse — it\'s a context.'},
+    {type:'p', text:'Eventually the voices go quiet. Then a door slams. Then silence.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"I hate this house."'},
+  ],
+  next: 'c4_s2',
+};
+
+SCENES['c4_s2'] = {
+  id: 'c4_s2',
+  bg: 'school_hall',
+  bgMusic: 1,
+  location: 'WEDNESDAY · 7:55 AM · SCHOOL ENTRANCE',
+  title: 'Running on Empty',
+  chars: [ {type:'alex', emotion:'angry', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Alex slept about four hours. Eyes feel like they\'re full of sand. The hallway is too loud.'},
+    {type:'p', text:'Two underclassmen almost walk into Alex on the stairs. Alex doesn\'t move. They go around.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"If one more thing goes wrong today, I swear—"'},
+    {type:'callout', style:'info', title:'SLEEP & EMOTIONAL REGULATION', text:'Sleep deprivation directly impairs the prefrontal cortex — the part of the brain responsible for impulse control, empathy, and decision-making. Students who are chronically sleep-deprived are <b>significantly more likely</b> to respond aggressively to minor provocations. Alex\'s brain is working with one hand tied behind its back.'},
+    {type:'p', text:'At the end of the hallway: Ms. Rivera, the school counselor. She\'s talking to another student but she sees Alex — and she looks again.'},
+  ],
+  next: 'c4_s3',
+};
+
+SCENES['c4_s3'] = {
+  id: 'c4_s3',
+  bg: 'counselor',
+  bgMusic: 3,
+  location: 'WEDNESDAY MORNING · COUNSELOR\'S OFFICE',
+  title: 'Someone Who Notices',
+  chars: [
+    {type:'alex',      emotion:'angry',   label:'Alex'},
+    {type:'counselor', emotion:'neutral', label:'Ms. Rivera'},
+  ],
+  blocks: [
+    {type:'p', text:'Ms. Rivera catches up to Alex by the water fountain.'},
+    {type:'speech', speaker:'counselor', who:'Ms. Rivera', text:'"Hey, Alex. Got a second?"'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"I\'m gonna be late."'},
+    {type:'speech', speaker:'counselor', who:'Ms. Rivera', text:'"I\'ll write you a pass. Come in for just a minute."'},
+    {type:'p', text:'The office is small and smells like coffee and old books. There\'s a little succulent on the windowsill that probably hasn\'t been watered in a week. Alex sits in the chair across from Ms. Rivera.'},
+    {type:'speech', speaker:'counselor', who:'Ms. Rivera', text:'"You look exhausted. How are things?"'},
+    {type:'callout', style:'insight', title:'THE POWER OF BEING SEEN', text:'A caring adult who notices a student\'s distress and takes time to ask — even once — is one of the strongest protective factors against the long-term effects of adverse childhood experiences. It doesn\'t fix anything on its own. But it matters enormously.'},
+  ],
+  choices: [
+    {
+      id:'c4_open_up',
+      text: '"Things are... not great. At home. It\'s been loud lately." — Tell her a little.',
+      cls: 'help',
+      next: 'c4_s4_open',
+      insightDelta: 15,
+      sfx: 'pos',
+    },
+    {
+      id:'c4_deflect_counselor',
+      text: '"I\'m fine. I just didn\'t sleep great." — Deflect and get out.',
+      cls: 'harm',
+      next: 'c4_s4_deflect',
+      insightDelta: 2,
+      sfx: 'neg',
+    },
+  ],
+};
+
+SCENES['c4_s4_open'] = {
+  id: 'c4_s4_open',
+  bg: 'counselor',
+  location: 'COUNSELOR\'S OFFICE',
+  title: 'Something Shifts',
+  chars: [
+    {type:'alex',      emotion:'sad',     label:'Alex'},
+    {type:'counselor', emotion:'neutral', label:'Ms. Rivera'},
+  ],
+  blocks: [
+    {type:'p', text:'Alex looks at the succulent. Not at Ms. Rivera.'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"My parents... they fight a lot. About money. My dad doesn\'t come around much and when he does, it\'s worse than when he doesn\'t."'},
+    {type:'p', text:'Ms. Rivera doesn\'t say anything right away. She just nods.'},
+    {type:'speech', speaker:'counselor', who:'Ms. Rivera', text:'"That sounds really hard to carry around. Especially when you\'re expected to show up to school and just... be normal."'},
+    {type:'p', text:'Something in Alex\'s chest goes a little loose. Not better, exactly. Just looser.'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"Yeah."'},
+    {type:'callout', style:'insight', title:'THE SCIENCE OF BEING HEARD', text:'Putting words to difficult experiences — even briefly — activates the ventrolateral prefrontal cortex, which helps regulate emotional intensity. The act of saying out loud what is happening inside us genuinely reduces the strength of the emotional response. This is why talking to someone helps.'},
+    {type:'speech', speaker:'counselor', who:'Ms. Rivera', text:'"You don\'t have to carry this alone. I want you to know my door is open. And I want to talk to you about something I\'ve been noticing — but it can wait. Today I just wanted you to know someone sees you."'},
+  ],
+  next: 'c4_s5',
+  nextLabel: 'CONTINUE',
+};
+
+SCENES['c4_s4_deflect'] = {
+  id: 'c4_s4_deflect',
+  bg: 'counselor',
+  location: 'COUNSELOR\'S OFFICE',
+  title: 'The Wall',
+  chars: [
+    {type:'alex',      emotion:'neutral', label:'Alex'},
+    {type:'counselor', emotion:'sad',     label:'Ms. Rivera'},
+  ],
+  blocks: [
+    {type:'speech', speaker:'alex', who:'Alex', text:'"I\'m fine. Just tired. Can I get that pass?"'},
+    {type:'p', text:'Ms. Rivera writes the pass slowly. She sets it on the desk between them.'},
+    {type:'speech', speaker:'counselor', who:'Ms. Rivera', text:'"Okay. My door is open, Alex. Any time."'},
+    {type:'callout', style:'warning', title:'THE WALL', text:'Deflecting care from adults is a survival skill that many students develop after years of feeling let down. But it also keeps out the help that could genuinely change things. Alex doesn\'t trust this yet — and that makes sense. Trust is earned over time.'},
+    {type:'p', text:'Alex takes the pass and goes. In the doorway, for just a second, looks back at Ms. Rivera.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"She actually looked like she meant it."'},
+  ],
+  next: 'c4_s5',
+};
+
+SCENES['c4_s5'] = {
+  id: 'c4_s5',
+  bg: 'school_hall',
+  bgMusic: 1,
+  location: 'WEDNESDAY · AFTER LUNCH',
+  title: 'Breaking Point',
+  chars: [
+    {type:'alex',   emotion:'angry',  label:'Alex'},
+    {type:'jordan', emotion:'scared', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'The day keeps going. Afternoon classes. A substitute who can\'t control the room. Someone throws a paper ball that hits Alex in the back of the head and when Alex turns around, everyone\'s looking at their desks.'},
+    {type:'p', text:'In the hallway after class, Alex is buzzing with a low-grade fury that has nowhere to go. Jordan is there, walking the same direction.'},
+    {type:'p', text:'Someone bumps into Jordan and Jordan stumbles, knocking into Alex.'},
+    {type:'speech', speaker:'other', who:'Jordan', text:'"Oh — sorry, I didn\'t—"'},
+    {type:'callout', style:'warning', title:'TRIGGER POINT', text:'Alex is sleep-deprived, emotionally raw, and carrying stress from home, the math test, and a day of small indignities. Research shows that in this state, the brain is <b>significantly more likely</b> to interpret neutral events as threats and to respond with aggression. This is why the same provocation affects us differently on different days.'},
+  ],
+  choices: [
+    {
+      id:'c4_escalate',
+      text: '"Watch where you\'re going!" — Grab Jordan\'s backpack and shove it back at them.',
+      cls: 'harm',
+      next: 'c4_s6_escalate',
+      insightDelta: 0,
+      sfx: 'neg',
+    },
+    {
+      id:'c4_breathe',
+      text: '"It\'s fine." — Walk away. You remember what Ms. Rivera said.',
+      cls: 'help',
+      next: 'c4_s6_breathe',
+      insightDelta: 14,
+      sfx: 'pos',
+    },
+  ],
+};
+
+SCENES['c4_s6_escalate'] = {
+  id: 'c4_s6_escalate',
+  bg: 'school_hall',
+  location: 'HALLWAY',
+  title: 'The Ripple',
+  chars: [
+    {type:'alex',   emotion:'angry',  label:'Alex'},
+    {type:'jordan', emotion:'crying', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'Jordan stumbles again. Books hit the floor. People stop to look. Jordan doesn\'t cry — not here, not in front of everyone — but the eyes are bright.'},
+    {type:'p', text:'A teacher rounds the corner. Looks at Jordan, looks at Alex. <em>"What\'s going on here?"</em>'},
+    {type:'p', text:'Later: the principal\'s office. Alex\'s mom has to leave work early. The look on her face when she walks in — tired, confused, sad — is worse than the detention.'},
+    {type:'callout', style:'consequence', title:'CONSEQUENCES RIPPLE', text:'This incident has now affected Alex\'s school record, Alex\'s mom\'s job, and Jordan\'s sense of safety at school. Choices made in 3 seconds of out-of-control emotion can have week-long, month-long effects on multiple people\'s lives.'},
+  ],
+  next: 'c5_s1',
+  nextLabel: 'CHAPTER 5: THE OTHER SIDE',
+};
+
+SCENES['c4_s6_breathe'] = {
+  id: 'c4_s6_breathe',
+  bg: 'school_hall',
+  location: 'HALLWAY',
+  title: 'Choosing Different',
+  chars: [ {type:'alex', emotion:'neutral', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Alex breathes. The moment stretches. Then walks away.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"I don\'t even know that kid\'s name. That wasn\'t about them."'},
+    {type:'callout', style:'insight', title:'THE GAP', text:'Viktor Frankl wrote: "Between stimulus and response there is a space. In that space is our power to choose our response." What Alex just did — noticed the impulse, didn\'t act on it — is one of the core skills of <b>self-management</b> in SEL. It doesn\'t mean the feelings aren\'t real. It means they don\'t have to drive.'},
+    {type:'p', text:'It doesn\'t feel like a victory. It feels like not making things worse, which, today, is enough.'},
+  ],
+  next: 'c5_s1',
+  nextLabel: 'CHAPTER 5: THE OTHER SIDE',
+};
+
 </script>
 </body>
 </html>
