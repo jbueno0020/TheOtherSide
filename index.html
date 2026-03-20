@@ -1987,6 +1987,243 @@ SCENES['c4_s6_breathe'] = {
   nextLabel: 'CHAPTER 5: THE OTHER SIDE',
 };
 
+/* ══════════════════════════════════════════════════
+   CHAPTER 5: "THE OTHER SIDE"
+   Resolution: Empathy, Understanding, Better Paths
+══════════════════════════════════════════════════ */
+
+SCENES['c5_s1'] = {
+  id: 'c5_s1',
+  bg: 'bathroom',
+  bgMusic: 2,
+  location: 'THURSDAY · 10:20 AM · RESTROOM NEAR GYM',
+  chapterName: 'THE OTHER SIDE',
+  title: 'Chapter 5: The Other Side',
+  chars: [ {type:'alex', emotion:'neutral', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Alex ducks into the restroom between classes to avoid the crowd. It\'s usually empty.'},
+    {type:'p', text:'It\'s not empty.'},
+    {type:'p', text:'Jordan is standing at the sink. Not washing hands — just standing there, head down, one hand gripping the edge of the counter. Shoulders shaking.'},
+    {type:'p', text:'Jordan doesn\'t hear Alex come in.'},
+    {type:'callout', style:'insight', title:'THE OTHER SIDE', text:'This is the moment the game is named for. Up until now, Alex has mostly seen Jordan as a backdrop — someone to target or ignore. Now Alex is seeing Jordan as a <b>person in pain</b>. This is what empathy feels like: it\'s not comfortable, and it arrives uninvited.'},
+  ],
+  next: 'c5_s2',
+};
+
+SCENES['c5_s2'] = {
+  id: 'c5_s2',
+  bg: 'bathroom',
+  location: 'RESTROOM',
+  title: 'Recognition',
+  chars: [
+    {type:'alex',   emotion:'sad',    label:'Alex'},
+    {type:'jordan', emotion:'crying', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'Jordan finally looks up in the mirror — and sees Alex.'},
+    {type:'p', text:'The reaction is instant: Jordan flinches and takes a step back, knocking into the paper towel dispenser. Eyes wide. Braced for something.'},
+    {type:'p', text:'Alex stands in the doorway and doesn\'t move.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"That flinch. That\'s... that\'s the same flinch I make when Dad\'s voice gets too loud."'},
+    {type:'p', text:'Something cold drops through Alex\'s stomach.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"I did that. I made someone flinch like that."'},
+    {type:'callout', style:'insight', title:'THE MIRROR MOMENT', text:'Empathy often arrives not as an abstract principle, but as a sudden, visceral recognition: <b>I know what that feels like.</b> Seeing our own pain in someone else is uncomfortable — and it\'s also the beginning of change.'},
+  ],
+  next: 'c5_s3',
+};
+
+SCENES['c5_s3'] = {
+  id: 'c5_s3',
+  bg: 'bathroom',
+  location: 'RESTROOM · THAT MOMENT',
+  title: 'What Happens Next Is Up To You',
+  chars: [
+    {type:'alex',   emotion:'sad',    label:'Alex'},
+    {type:'jordan', emotion:'crying', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'The two of them stand there. The faucet drips. The fluorescent light buzzes.'},
+    {type:'p', text:'Jordan is still watching Alex. Waiting. Not daring to move.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"I could walk out. Pretend I didn\'t see this. That\'s probably what Tyler would do."'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Or I could... say something. I don\'t even know what."'},
+    {type:'callout', style:'info', title:'THIS IS A REAL MOMENT', text:'What Alex does in the next thirty seconds is the most important choice in this story. Research on restorative practices shows that <b>genuine acknowledgment of harm</b> — even a brief, imperfect one — is more healing for both parties than any punishment-based response.'},
+    {type:'p', text:'Alex takes a breath.'},
+  ],
+  choices: [
+    {
+      id:'c5_apologize',
+      text: '"Hey... I\'m sorry. For — all of it. The hallway, the cafeteria. That was me, and it wasn\'t okay."',
+      cls: 'help',
+      next: 'c5_end_empathy',
+      insightDelta: 20,
+      sfx: 'pos',
+    },
+    {
+      id:'c5_tell_adult',
+      text: 'Walk out, find Ms. Rivera, and tell her Jordan needs someone to talk to right now.',
+      cls: 'neut',
+      next: 'c5_end_partial',
+      insightDelta: 12,
+      sfx: 'pos',
+    },
+    {
+      id:'c5_walk_away',
+      text: 'Walk back out. You don\'t know what to say. You can\'t fix this.',
+      cls: 'harm',
+      next: 'c5_end_avoidance',
+      insightDelta: 4,
+      sfx: 'neg',
+    },
+  ],
+};
+
+/* ══════════════════════════════════════════════════
+   ENDINGS
+══════════════════════════════════════════════════ */
+
+SCENES['c5_end_empathy'] = {
+  _isEnding: true,
+  badge:  '★ ENDING: THE OTHER SIDE ★',
+  music:  4,
+  title:  'Two People, One Restroom, Something Beginning',
+  summary: `<b>What happened:</b><br><br>
+Jordan stared at Alex for a long moment. Then, quietly:<br><br>
+<em>"...Why?"</em><br><br>
+Alex didn't have a great answer. "I was taking stuff out on you that wasn't about you. It still wasn't okay. I'm sorry."<br><br>
+Jordan didn't forgive Alex right then — that's not how it works. But something changed. Jordan's shoulders came down half an inch. Alex felt the hollow place in the chest not fill up exactly, but shift.<br><br>
+They went to class separately. But Ms. Rivera found out anyway — Jordan finally talked to her that afternoon. Alex went to see her too, after school, to say some of the things that had been building up since the empty house on Monday.<br><br>
+<b>This isn't the end of either of their stories. It's a beginning.</b>`,
+  selSkills: [
+    '<b>Self-Awareness:</b> Alex recognized the pain underneath the behavior — and saw it reflected in Jordan.',
+    '<b>Empathy:</b> The mirror moment in the bathroom — recognizing Jordan\'s flinch as something Alex knew from the inside.',
+    '<b>Responsible Decision-Making:</b> Choosing the harder, riskier path of acknowledgment instead of avoidance.',
+    '<b>Relationship Skills:</b> An imperfect, genuine apology — and knowing it isn\'t enough, but saying it anyway.',
+    '<b>Self-Management:</b> Alex named the feeling, didn\'t act on the impulse to run, and stayed in the discomfort.',
+  ],
+  discussion: [
+    'What do you think was going through Jordan\'s mind when Alex apologized?',
+    'Why is apologizing to someone you\'ve hurt sometimes the hardest thing to do? What gets in the way?',
+    'Alex\'s behavior had root causes — family stress, shame, fear. Does understanding those causes change how you feel about what Alex did? Why or why not?',
+    'Can you think of a time when you recognized yourself in someone else\'s pain? What did you do with that feeling?',
+    'What\'s one thing that a trusted adult could have done earlier in Alex\'s week that might have made a difference?',
+    'What does "restorative" mean to you? How is it different from punishment?',
+  ],
+};
+
+SCENES['c5_end_partial'] = {
+  _isEnding: true,
+  badge:  '◆ ENDING: THE MESSENGER ◆',
+  music:  3,
+  title:  'Small Steps Still Move Forward',
+  summary: `<b>What happened:</b><br><br>
+Alex walked out of the bathroom, found Ms. Rivera in the hallway, and said: "I think Jordan needs to talk to someone. Right now."<br><br>
+Ms. Rivera looked at Alex carefully. "Okay. I'll go check. Thank you for telling me."<br><br>
+Jordan got the support Alex couldn't figure out how to give. Alex didn't apologize that day — that came later, in pieces, imperfectly. But something had shifted.<br><br>
+Alex started going to Ms. Rivera's office on Tuesdays. Not because everything was fixed. Because the door was open, and maybe that was enough to start.<br><br>
+<b>Helping doesn't always look like the big gesture. Sometimes it looks like walking down the hall and knocking on a door.</b>`,
+  selSkills: [
+    '<b>Empathy:</b> Recognizing that Jordan needed help — even without knowing exactly what to say.',
+    '<b>Responsible Decision-Making:</b> Choosing to involve a trusted adult rather than ignore the situation.',
+    '<b>Self-Awareness:</b> Knowing the limits of what you can do alone — and that\'s okay.',
+    '<b>Help-Seeking:</b> Telling a trusted adult is not snitching — it\'s one of the bravest things a student can do.',
+    '<b>Relationship Skills:</b> Beginning the slow work of repair — not all at once, but in the right direction.',
+  ],
+  discussion: [
+    'Alex helped Jordan by getting an adult instead of trying to fix it alone. When is that the right call? When might it not be enough?',
+    'What do you think made it hard for Alex to apologize directly in that moment?',
+    'What is one thing you could do if you saw someone in distress at school — even if you didn\'t know them well?',
+    'What does it feel like to tell an adult about something hard? What gets in the way?',
+    'If you were Jordan, how would you feel finding out that Alex went to get Ms. Rivera?',
+    'How can a school counselor be a resource — not just for crisis moments, but for everyday stress?',
+  ],
+};
+
+SCENES['c5_end_avoidance'] = {
+  _isEnding: true,
+  badge:  '○ ENDING: THE HALLWAY ○',
+  music:  2,
+  title:  'The Door You Didn\'t Open',
+  summary: `<b>What happened:</b><br><br>
+Alex walked out.<br><br>
+The door swung shut. The hallway was full of people going to class.<br><br>
+Jordan was still in the bathroom.<br><br>
+Alex sat through the next two periods not really hearing any of it. At one point, someone asked a question and the teacher called on Alex — and Alex said "I don't know" without even processing the words.<br><br>
+The flinch kept coming back. That look. That step backward.<br><br>
+Walking out didn't make it go away. It just made Alex carry it alone.<br><br>
+<b>This isn't a bad ending because Alex is a bad person. It's an unfinished one. The door is still there. It can still be opened.</b><br><br>
+<em>What would you do next?</em>`,
+  selSkills: [
+    '<b>Self-Awareness:</b> Even in avoidance, Alex felt the weight of the moment — that feeling is information worth listening to.',
+    '<b>Empathy:</b> The recognition happened, even if Alex wasn\'t ready to act on it yet. Recognizing it is the first step.',
+    '<b>Growth Mindset:</b> This ending isn\'t permanent. Awareness of harm is the seed of change — even when we\'re not ready.',
+    '<b>Reflection:</b> The fact that Alex couldn\'t stop thinking about Jordan\'s face is the beginning of something, not the end.',
+  ],
+  discussion: [
+    'Why do you think Alex walked away? What feelings might have gotten in the way of saying something?',
+    'Have you ever noticed something was wrong and looked the other way? What did that feel like afterward?',
+    'What do you think would need to happen for Alex to go back and say something to Jordan?',
+    'This ending is called "unfinished." What do you think the next chapter of Alex\'s story could look like?',
+    'What would you tell Alex right now, if you could?',
+    'What is one small thing any of us can do when we realize we\'ve hurt someone — even if we don\'t know how to fix it all at once?',
+  ],
+};
+
+/* ── Chapter tracker: update chapter index on chapter entry ── */
+['c2_s1','c3_s1','c4_s1','c5_s1'].forEach((id,i) => {
+  const orig = SCENES[id];
+  const origRender = id;
+  if (orig) {
+    const chIdx = i+1;
+    const origNext = orig.next;
+    // Wrap scene to update chapter when rendered
+    const origBlocks = orig.blocks;
+    orig._chapterIdx = chIdx;
+  }
+});
+
+// Patch renderScene to update state.chapter from scene._chapterIdx
+const _origRenderScene = renderScene;
+window._patchedRenderScene = function(scene) {
+  if (scene._chapterIdx !== undefined) {
+    state.chapter = scene._chapterIdx;
+    document.getElementById('insight-bar').style.width = state.insight + '%';
+  }
+  _origRenderScene(scene);
+};
+// Override renderScene
+window.renderScene = window._patchedRenderScene;
+// Also patch advanceScene and handleChoice to use window.renderScene
+const _origHandleChoice = handleChoice;
+// Re-patch handleChoice to call window.renderScene
+function handleChoice(ch) {
+  state.choices[ch.id] = true;
+  if (ch.insightDelta) addInsight(ch.insightDelta);
+  if (ch.sfx === 'pos')  sfxPos();
+  else if (ch.sfx === 'neg') sfxNeg();
+  else sfxConfirm();
+  const nextId = typeof ch.next === 'function' ? ch.next() : ch.next;
+  if (!nextId) return;
+  const nextScene = SCENES[nextId];
+  if (!nextScene) { console.warn('Missing scene:', nextId); return; }
+  fadeTransition(() => {
+    if (nextScene._isEnding) showEnding(nextScene);
+    else window.renderScene(nextScene);
+  });
+}
+
+function advanceScene() {
+  if (!currentScene || !currentScene.next) return;
+  sfxClick();
+  const nextId = typeof currentScene.next === 'function'
+    ? currentScene.next()
+    : currentScene.next;
+  const nextScene = SCENES[nextId];
+  if (!nextScene) { console.warn('Missing scene:', nextId); return; }
+  fadeTransition(() => {
+    if (nextScene._isEnding) showEnding(nextScene);
+    else window.renderScene(nextScene);
+  });
+}
+
 </script>
 </body>
 </html>
