@@ -1329,9 +1329,316 @@ window.addEventListener('load', () => {
    SCENES  — defined in Parts 3-5
 ══════════════════════════════════════════════════ */
 const SCENES = {};
-</script>
-</body>
-</html>
 
+/* ══════════════════════════════════════════════════
+   CHAPTER 1: "THE EMPTY HOUSE"
+   Root Cause: Family Dysfunction / Lack of Attention
+══════════════════════════════════════════════════ */
+
+SCENES['c1_s1'] = {
+  id: 'c1_s1',
+  bg: 'bedroom',
+  bgMusic: 2,
+  location: 'MONDAY · 4:47 PM · ALEX\'S BEDROOM',
+  chapterName: 'THE EMPTY HOUSE',
+  title: 'Chapter 1: The Empty House',
+  chars: [ {type:'alex', emotion:'sad', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'The key scrapes in the lock. The apartment is dark.<br>Again.'},
+    {type:'p', text:'Alex drops the backpack by the door and checks the kitchen counter for a note. There\'s a half-empty coffee mug from this morning — stone cold — and nothing else.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Mom said she\'d be home by five. That was last week too."'},
+    {type:'p', text:'The refrigerator hums. A car passes outside. Somewhere down the hall, a neighbor\'s TV drones on.'},
+    {type:'p', text:'Alex picks up the phone. One unread text: <b>"Working late again — leftovers in the fridge. Love you."</b>'},
+    {type:'callout', style:'insight', title:'WHAT\'S HAPPENING INSIDE', text:'Alex\'s parents aren\'t bad people — they\'re overwhelmed and struggling. But for Alex, empty house after empty house adds up to one message: <b>I don\'t matter enough for someone to be here.</b>'},
+  ],
+  next: 'c1_s2',
+};
+
+SCENES['c1_s2'] = {
+  id: 'c1_s2',
+  bg: 'bedroom',
+  bgMusic: 2,
+  location: 'MONDAY · 4:55 PM · ALEX\'S BEDROOM',
+  title: 'The Weight of Waiting',
+  chars: [ {type:'alex', emotion:'angry', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Alex sits on the bed and stares at the ceiling. The homework isn\'t going to do itself, but the words blur on the page. It\'s hard to focus when your chest feels like this.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Tyler\'s parents take him to his games every Saturday. My dad hasn\'t even called in three weeks."'},
+    {type:'p', text:'The anger is easier than the sadness. It burns clean instead of aching. Alex slams the textbook shut.'},
+    {type:'callout', style:'info', title:'DID YOU KNOW?', text:'Research shows that students who feel unseen or unvalued at home often seek <b>power and control</b> in other settings — including school. Bullying can be a way of saying "I exist" when no one at home seems to be listening.'},
+    {type:'p', text:'Tomorrow is Tuesday. There\'s a math test Alex hasn\'t studied for, and Jordan — the quiet new kid — is going to be sitting in the next row.'},
+    {type:'p', text:'Alex\'s phone buzzes. Tyler: <em>"You coming to the courts tomorrow after school?"</em>'},
+  ],
+  choices: [
+    {
+      id:'c1_vent_friend',
+      text: 'Text back: "Yeah. Need to get out of my head." — Let Tyler know you\'re struggling.',
+      cls: 'help',
+      next: 'c1_s3_vent',
+      insightDelta: 10,
+      sfx: 'pos',
+    },
+    {
+      id:'c1_stew',
+      text: 'Throw the phone across the bed. Nobody actually cares. Just try to sleep.',
+      cls: 'harm',
+      next: 'c1_s3_stew',
+      insightDelta: 0,
+      sfx: 'neg',
+    },
+  ],
+};
+
+SCENES['c1_s3_vent'] = {
+  id: 'c1_s3_vent',
+  bg: 'bedroom',
+  location: 'MONDAY NIGHT',
+  title: 'A Small Connection',
+  chars: [ {type:'alex', emotion:'neutral', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Tyler texts back: <em>"Yeah man. That sucks. See you tomorrow."</em>'},
+    {type:'p', text:'It\'s not much. But it\'s something. Alex feels a tiny bit less alone.'},
+    {type:'callout', style:'insight', title:'INSIGHT', text:'Reaching out — even briefly — activates the brain\'s social reward system and can reduce the flood of stress hormones. It\'s a small act, but it matters.'},
+    {type:'p', text:'Alex still goes to sleep angry. But somewhere underneath the anger, a door is just slightly more open than it was an hour ago.'},
+  ],
+  next: 'c1_s4',
+  nextLabel: 'NEXT MORNING',
+};
+
+SCENES['c1_s3_stew'] = {
+  id: 'c1_s3_stew',
+  bg: 'bedroom',
+  location: 'MONDAY NIGHT',
+  title: 'Alone With It',
+  chars: [ {type:'alex', emotion:'angry', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'The anger sits in Alex\'s chest like a rock. By midnight it\'s turned into something harder — a low, burning need to make tomorrow feel different. To feel like something.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"At school I\'m not invisible. At school, people notice me."'},
+    {type:'callout', style:'consequence', title:'WHAT THIS SETS UP', text:'When we bottle up pain without any outlet, it doesn\'t disappear — it leaks out sideways. Tomorrow, Alex will be carrying today\'s pain into school, and someone there may end up on the receiving end of it.'},
+  ],
+  next: 'c1_s4',
+  nextLabel: 'NEXT MORNING',
+};
+
+SCENES['c1_s4'] = {
+  id: 'c1_s4',
+  bg: 'school_hall',
+  bgMusic: 1,
+  location: 'TUESDAY · 8:10 AM · SCHOOL HALLWAY',
+  title: 'The Morning After',
+  chars: [
+    {type:'alex',   emotion:'angry',  label:'Alex'},
+    {type:'jordan', emotion:'neutral', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'The hallway smells like cheap disinfectant and somebody\'s breakfast sandwich. Students stream past their lockers.'},
+    {type:'p', text:'Jordan is ahead of Alex — the new kid, only been here three weeks. Jordan is carefully arranging books in a locker, a new pair of sneakers clearly visible, lunch box balanced on top.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Look at those shoes. Must be nice. Must be nice to have parents who buy you stuff."'},
+    {type:'p', text:'Tyler appears at Alex\'s elbow and leans in, grinning. <em>"Yo, watch this."</em> He nods toward Jordan.'},
+    {type:'p', text:'Everything slows down. Alex knows what Tyler means. It would take two seconds. Jordan would be humiliated and the crowd would laugh and Alex would feel powerful, at least for a minute.'},
+  ],
+  choices: [
+    {
+      id:'c1_bully_jordan',
+      text: 'Go with Tyler — knock Jordan\'s lunch off the locker shelf and laugh about the "accident."',
+      cls: 'harm',
+      next: 'c1_s5_bully',
+      insightDelta: 0,
+      sfx: 'neg',
+    },
+    {
+      id:'c1_walk_away',
+      text: 'Keep walking. Tell Tyler "nah, I\'m not into it today."',
+      cls: 'help',
+      next: 'c1_s5_walkaway',
+      insightDelta: 8,
+      sfx: 'pos',
+    },
+  ],
+};
+
+SCENES['c1_s5_bully'] = {
+  id: 'c1_s5_bully',
+  bg: 'school_hall',
+  location: 'TUESDAY MORNING · HALLWAY',
+  title: 'Cause and Effect',
+  chars: [
+    {type:'alex',   emotion:'angry',  label:'Alex'},
+    {type:'jordan', emotion:'scared', label:'Jordan'},
+    {type:'tyler',  emotion:'happy',  label:'Tyler'},
+  ],
+  blocks: [
+    {type:'p', text:'It happens fast. The lunch box hits the floor. Jordan\'s thermos rolls under someone\'s feet and gets kicked. A small crowd turns to look. Tyler laughs.'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"Oops. Maybe watch where you put your stuff."'},
+    {type:'p', text:'Jordan\'s face goes red, then white. Quickly gathering everything off the floor without looking up, not saying a word. The silence is somehow worse than yelling.'},
+    {type:'callout', style:'consequence', title:'WHAT ALEX FEELS — AND WHAT\'S UNDERNEATH', text:'For about 30 seconds, the power feels good. Then it fades. The hollow feeling is back — just quieter. Research shows that acts of aggression give a short-term dopamine hit but <b>increase</b> underlying feelings of shame and disconnection over time.'},
+    {type:'p', text:'Alex doesn\'t think about Jordan\'s face for the rest of first period. Tries not to. It keeps coming back anyway.'},
+  ],
+  next: 'c2_s1',
+  nextLabel: 'CHAPTER 2',
+};
+
+SCENES['c1_s5_walkaway'] = {
+  id: 'c1_s5_walkaway',
+  bg: 'school_hall',
+  location: 'TUESDAY MORNING · HALLWAY',
+  title: 'The Other Road',
+  chars: [
+    {type:'alex',  emotion:'neutral', label:'Alex'},
+    {type:'tyler', emotion:'angry',   label:'Tyler'},
+  ],
+  blocks: [
+    {type:'p', text:'Alex keeps walking. Tyler makes a face and mutters something, but it\'s just noise.'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"Whatever, man. Since when are you soft?"'},
+    {type:'callout', style:'insight', title:'WHAT THIS TAKES', text:'It takes more courage to walk away from a crowd pulling you toward something than to go along with it. Alex doesn\'t feel heroic — just a little less sick.'},
+    {type:'p', text:'In class, Jordan sits down two rows over and unpacks quietly. Alex glances over. Jordan looks like someone who\'s braced for something bad — shoulders up, eyes down.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"That used to be me. First week at Jefferson, I ate lunch in the bathroom three days in a row."'},
+  ],
+  next: 'c2_s1',
+  nextLabel: 'CHAPTER 2',
+};
+
+/* ══════════════════════════════════════════════════
+   CHAPTER 2: "NOT GOOD ENOUGH"
+   Root Cause: Academic Failure / Low Self-Esteem
+══════════════════════════════════════════════════ */
+
+SCENES['c2_s1'] = {
+  id: 'c2_s1',
+  bg: 'classroom',
+  bgMusic: 1,
+  location: 'TUESDAY · 9:30 AM · MATH CLASS',
+  chapterName: 'NOT GOOD ENOUGH',
+  title: 'Chapter 2: Not Good Enough',
+  chars: [ {type:'alex', emotion:'scared', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Mr. Diaz is handing back last Friday\'s math test. Alex watches the stack get smaller as he works his way down the rows.'},
+    {type:'p', text:'The test lands face-down on the desk. Alex already knows it\'s bad.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"If I flip it over and it\'s what I think it is, everyone will know."'},
+    {type:'p', text:'Alex flips it over. <b>47/100.</b> A big red <b>F</b> in the corner. Two seats away, someone named Marcus is comparing with his neighbor — 94 and 91.'},
+    {type:'callout', style:'consequence', title:'THE SHAME SPIRAL', text:'Academic failure doesn\'t just hurt grades — it attacks identity. When a student gets an F, the brain often interprets it as <b>"I am stupid"</b> rather than "I need help with this concept." This shame is incredibly painful — and pain looks for somewhere to go.'},
+  ],
+  next: 'c2_s2',
+};
+
+SCENES['c2_s2'] = {
+  id: 'c2_s2',
+  bg: 'classroom',
+  location: 'MATH CLASS · MOMENTS LATER',
+  title: 'Called Out',
+  chars: [ {type:'alex', emotion:'scared', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Mr. Diaz is going over problem 7. He scans the room.'},
+    {type:'speech', speaker:'other', who:'Mr. Diaz', text:'"Alex — can you tell me what the first step would be here?"'},
+    {type:'p', text:'The whole class turns. Alex stares at the board. The numbers swim. Nothing comes.'},
+    {type:'p', text:'Three seconds. Five seconds. Someone snickers. It might be nothing — maybe they\'re laughing at a phone. But it lands like a spotlight.'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"I... I don\'t know."'},
+    {type:'speech', speaker:'other', who:'Mr. Diaz', text:'"That\'s okay. It\'s on the test we just handed back — might be worth reviewing. Marcus, can you walk us through it?"'},
+    {type:'p', text:'Marcus launches into the answer with easy confidence. Alex stares at the desk, ears burning.'},
+    {type:'callout', style:'insight', title:'CONNECT THE DOTS', text:'Being publicly humiliated — even mildly — floods the brain with cortisol and activates the same pain centers as physical injury. Alex\'s anger right now isn\'t really about Marcus or Mr. Diaz. <b>It\'s about feeling small.</b>'},
+  ],
+  choices: [
+    {
+      id:'c2_ask_help',
+      text: 'After class, quietly ask Mr. Diaz if there\'s any way to get extra help.',
+      cls: 'help',
+      next: 'c2_s3_help',
+      insightDelta: 12,
+      sfx: 'pos',
+    },
+    {
+      id:'c2_mock_jordan',
+      text: 'On the way out, say something cutting to Jordan: "What are YOU looking at?"',
+      cls: 'harm',
+      next: 'c2_s3_mock',
+      insightDelta: 0,
+      sfx: 'neg',
+    },
+    {
+      id:'c2_shut_down',
+      text: 'Put your head down and just get through the class. Say nothing to anyone.',
+      cls: 'neut',
+      next: 'c2_s3_shutdown',
+      insightDelta: 4,
+      sfx: 'pos',
+    },
+  ],
+};
+
+SCENES['c2_s3_help'] = {
+  id: 'c2_s3_help',
+  bg: 'classroom',
+  location: 'MATH CLASS · END OF PERIOD',
+  title: 'Asking Is Hard',
+  chars: [ {type:'alex', emotion:'neutral', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Everyone else files out. Alex lingers by the door for a second, then turns back. Mr. Diaz looks up from his desk.'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"Um. Is there... like, any way to... I don\'t know. Get some extra help? With this unit?"'},
+    {type:'speech', speaker:'other', who:'Mr. Diaz', text:'"Of course. I\'m here Tuesdays and Thursdays after school. I\'m glad you asked."'},
+    {type:'p', text:'Alex nods and heads out. It didn\'t feel great. But it didn\'t feel terrible either.'},
+    {type:'callout', style:'insight', title:'WHY THIS MATTERS', text:'Asking for help is one of the hardest things for students who are struggling with shame. The fear of looking "dumb" keeps many students from getting support. <b>Help-seeking is a strength, not a weakness</b> — and it\'s a core SEL skill.'},
+  ],
+  next: 'c2_s4',
+  nextLabel: 'CONTINUE',
+};
+
+SCENES['c2_s3_mock'] = {
+  id: 'c2_s3_mock',
+  bg: 'school_hall',
+  location: 'HALLWAY · AFTER MATH',
+  title: 'The Transfer',
+  chars: [
+    {type:'alex',   emotion:'angry',  label:'Alex'},
+    {type:'jordan', emotion:'scared', label:'Jordan'},
+  ],
+  blocks: [
+    {type:'p', text:'Jordan is at the water fountain. Alex walks past and leans in close.'},
+    {type:'speech', speaker:'alex', who:'Alex', text:'"What are you looking at?"'},
+    {type:'p', text:'Jordan wasn\'t looking at anything. Jordan was just... there. But the confusion on Jordan\'s face — the flinch — gives Alex a split second of feeling like something other than the kid who just failed a test.'},
+    {type:'callout', style:'consequence', title:'DISPLACEMENT', text:'This is called "displacing" emotions — directing your pain at a safer target because the real source of pain (the test, the humiliation, home) feels too big or too risky to confront. Alex isn\'t angry at Jordan. <b>Alex is angry at Alex.</b>'},
+    {type:'p', text:'The feeling lasts about 45 seconds. Then it\'s gone, and the test score is still 47.'},
+  ],
+  next: 'c2_s4',
+};
+
+SCENES['c2_s3_shutdown'] = {
+  id: 'c2_s3_shutdown',
+  bg: 'school_hall',
+  location: 'HALLWAY · AFTER MATH',
+  title: 'Going Quiet',
+  chars: [ {type:'alex', emotion:'sad', label:'Alex'} ],
+  blocks: [
+    {type:'p', text:'Alex slips out with the crowd and keeps walking. Head down. Earbuds in. The music is too loud.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"I\'m just not a school person. Some people are. I\'m not."'},
+    {type:'callout', style:'info', title:'FIXED VS. GROWTH MINDSET', text:'When students decide they\'re "just not smart," that\'s a fixed mindset talking — and it\'s often a response to shame and repeated failure without support. It\'s protective in the short term, but it closes the door on growth. <b>Brains can and do change with the right support.</b>'},
+  ],
+  next: 'c2_s4',
+};
+
+SCENES['c2_s4'] = {
+  id: 'c2_s4',
+  bg: 'school_hall',
+  bgMusic: 1,
+  location: 'TUESDAY · 11:50 AM · BEFORE LUNCH',
+  title: 'Status Check',
+  chars: [
+    {type:'alex',  emotion:'neutral', label:'Alex'},
+    {type:'tyler', emotion:'happy',   label:'Tyler'},
+    {type:'maya',  emotion:'neutral', label:'Maya'},
+  ],
+  blocks: [
+    {type:'p', text:'Tyler and Maya are at their usual spot by the gym doors. Tyler is scrolling his phone; Maya is retying her shoes.'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"Yo, you heard about the thing at lunch? Marcus dropped his whole tray in front of everyone."'},
+    {type:'speech', speaker:'other', who:'Maya', text:'"I feel bad for him. That\'s embarrassing."'},
+    {type:'speech', speaker:'other', who:'Tyler', text:'"It\'s hilarious is what it is."'},
+    {type:'p', text:'Alex thinks about the test score. About Mr. Diaz. About the snicker from somewhere in the classroom. Marcus seemed pretty comfortable up there at the board.'},
+    {type:'speech', speaker:'thought', who:'Alex (thinking)', text:'"Now he knows what it feels like."'},
+    {type:'callout', style:'insight', title:'PAUSE', text:'Alex is about to head into the cafeteria for lunch. The choices made here will ripple into Chapter 3. Notice what Alex is feeling right now — is it anger? Shame? Relief? Something else?'},
+  ],
+  next: 'c3_s1',
+  nextLabel: 'CHAPTER 3: THE LUNCH TABLE',
+};
+
+</script>
 </body>
 </html>
