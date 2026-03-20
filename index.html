@@ -658,15 +658,680 @@
 </div><!-- /#app -->
 
 <!-- ════════════════════════════════════════════════
-     JAVASCRIPT ENGINE — Part 2 will fill this in
+     JAVASCRIPT ENGINE
 ════════════════════════════════════════════════ -->
 <script>
-// ── PLACEHOLDER — Game engine loads in Part 2 ──
-function startGame()  { alert('Engine loading — check back after Part 2 commit!'); }
-function toggleSound(){ }
-function advanceScene(){ }
-function replayGame() { location.reload(); }
+'use strict';
+
+/* ══════════════════════════════════════════════════
+   AUDIO ENGINE  (Web Audio API chiptune)
+══════════════════════════════════════════════════ */
+let audioCtx = null;
+let soundOn  = true;
+let bgNode   = null;   // currently playing background loop
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById('sound-btn').textContent = '♪ SFX: ' + (soundOn ? 'ON' : 'OFF');
+  if (!soundOn && bgNode) { try { bgNode.stop(); } catch(e){} bgNode = null; }
+}
+
+/* ── Low-level tone ── */
+function playTone(freq, type, startTime, duration, gain, ctx) {
+  const g  = ctx.createGain();
+  const o  = ctx.createOscillator();
+  o.type   = type;
+  o.frequency.setValueAtTime(freq, startTime);
+  g.gain.setValueAtTime(0, startTime);
+  g.gain.linearRampToValueAtTime(gain, startTime + 0.01);
+  g.gain.linearRampToValueAtTime(0,    startTime + duration);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(startTime); o.stop(startTime + duration + 0.05);
+}
+
+/* ── UI click beep ── */
+function sfxClick() {
+  if (!soundOn) return;
+  const ctx = getAudioCtx();
+  const t   = ctx.currentTime;
+  playTone(440, 'square', t,       0.05, 0.15, ctx);
+  playTone(660, 'square', t+0.06,  0.05, 0.15, ctx);
+}
+
+/* ── Choice confirm ── */
+function sfxConfirm() {
+  if (!soundOn) return;
+  const ctx = getAudioCtx();
+  const t   = ctx.currentTime;
+  [523,659,784].forEach((f,i) => playTone(f,'square', t+i*0.08, 0.09, 0.12, ctx));
+}
+
+/* ── Negative consequence ── */
+function sfxNeg() {
+  if (!soundOn) return;
+  const ctx = getAudioCtx();
+  const t   = ctx.currentTime;
+  playTone(220,'sawtooth',t,      0.12, 0.15, ctx);
+  playTone(196,'sawtooth',t+0.14, 0.18, 0.15, ctx);
+}
+
+/* ── Positive / insight ── */
+function sfxPos() {
+  if (!soundOn) return;
+  const ctx = getAudioCtx();
+  const t   = ctx.currentTime;
+  [392,523,659,784].forEach((f,i) => playTone(f,'square',t+i*0.1,0.12,0.12,ctx));
+}
+
+/* ── Chapter fanfare ── */
+function sfxChapter() {
+  if (!soundOn) return;
+  const ctx = getAudioCtx();
+  const t   = ctx.currentTime;
+  const mel = [523,587,659,698,784];
+  mel.forEach((f,i) => playTone(f,'square',t+i*0.12,0.14,0.14,ctx));
+}
+
+/* ── Background music (simple looping arpeggio) ──
+   theme: 0=title 1=tense 2=sad 3=hopeful  */
+function playBgMusic(theme) {
+  if (!soundOn) return;
+  stopBgMusic();
+  const ctx  = getAudioCtx();
+  const themes = {
+    0: { notes:[262,330,392,330],  tempo:0.22, wave:'square',  vol:0.06 },
+    1: { notes:[220,277,330,220],  tempo:0.18, wave:'sawtooth',vol:0.05 },
+    2: { notes:[196,247,294,247],  tempo:0.28, wave:'triangle',vol:0.06 },
+    3: { notes:[330,392,494,392],  tempo:0.20, wave:'square',  vol:0.06 },
+    4: { notes:[392,494,587,659],  tempo:0.15, wave:'square',  vol:0.07 },
+  };
+  const cfg = themes[theme] || themes[0];
+  let beat   = 0;
+  let playing = true;
+  let schedAt = ctx.currentTime + 0.1;
+
+  function schedule() {
+    if (!playing) return;
+    const f = cfg.notes[beat % cfg.notes.length];
+    playTone(f, cfg.wave, schedAt, cfg.tempo * 0.85, cfg.vol, ctx);
+    schedAt += cfg.tempo;
+    beat++;
+    if (beat % (cfg.notes.length * 8) === 0) schedAt += cfg.tempo * 2; // brief pause each phrase
+  }
+
+  const id = setInterval(() => {
+    if (!playing || !soundOn) { clearInterval(id); return; }
+    while (schedAt < ctx.currentTime + 0.4) schedule();
+  }, 100);
+
+  bgNode = { stop: () => { playing = false; clearInterval(id); } };
+}
+
+function stopBgMusic() {
+  if (bgNode) { try { bgNode.stop(); } catch(e){} bgNode = null; }
+}
+
+/* ══════════════════════════════════════════════════
+   PIXEL ART RENDERER  (HTML Canvas)
+══════════════════════════════════════════════════ */
+
+/* Scene background palettes & patterns */
+const BG_SCENES = {
+  bedroom: {
+    sky: '#0a0a2a',
+    floor: '#1a0f0f',
+    walls: '#1a1030',
+    accent: '#2a1a50',
+    items: drawBedroom
+  },
+  school_hall: {
+    sky: '#0a1a30',
+    floor: '#0f1520',
+    walls: '#0a1028',
+    accent: '#1a2040',
+    items: drawSchoolHall
+  },
+  classroom: {
+    sky: '#0a1525',
+    floor: '#0a1020',
+    walls: '#0f1535',
+    accent: '#1a2045',
+    items: drawClassroom
+  },
+  cafeteria: {
+    sky: '#0a1020',
+    floor: '#0f1020',
+    walls: '#0a0f1e',
+    accent: '#151a30',
+    items: drawCafeteria
+  },
+  counselor: {
+    sky: '#0a1520',
+    floor: '#0a1215',
+    walls: '#0a1520',
+    accent: '#102030',
+    items: drawCounselorOffice
+  },
+  bathroom: {
+    sky: '#0f1520',
+    floor: '#0a1018',
+    walls: '#0a1220',
+    accent: '#102028',
+    items: drawBathroom
+  },
+  outside: {
+    sky: '#050a1a',
+    floor: '#0a1008',
+    walls: '#050a10',
+    accent: '#0a1520',
+    items: drawOutside
+  },
+};
+
+function drawSceneBg(sceneName) {
+  const canvas = document.getElementById('scene-canvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cfg = BG_SCENES[sceneName] || BG_SCENES.bedroom;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Sky / ceiling band
+  ctx.fillStyle = cfg.sky;
+  ctx.fillRect(0, 0, W, H * 0.55);
+
+  // Wall
+  ctx.fillStyle = cfg.walls;
+  ctx.fillRect(0, H*0.05, W, H*0.5);
+
+  // Floor
+  ctx.fillStyle = cfg.floor;
+  ctx.fillRect(0, H*0.55, W, H*0.45);
+
+  // Floor line
+  ctx.fillStyle = cfg.accent;
+  ctx.fillRect(0, H*0.55, W, 4);
+
+  // Pixel grid on floor
+  ctx.fillStyle = 'rgba(255,255,255,0.02)';
+  for (let x=0; x<W; x+=16) ctx.fillRect(x, H*0.55, 2, H*0.45);
+  for (let y=H*0.55; y<H; y+=16) ctx.fillRect(0, y, W, 2);
+
+  // Stars / dust in sky
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  for (let i=0;i<30;i++) {
+    const sx = (i*97+13)%W;
+    const sy = (i*53+7) % (H*0.45);
+    ctx.fillRect(sx,sy,2,2);
+  }
+
+  // Scene-specific items
+  if (cfg.items) cfg.items(ctx, W, H, cfg);
+}
+
+function drawBedroom(ctx, W, H, c) {
+  // Bed frame (right side)
+  ctx.fillStyle='#3a2010'; ctx.fillRect(W*0.65,H*0.35,W*0.28,H*0.22);
+  ctx.fillStyle='#5a3010'; ctx.fillRect(W*0.63,H*0.32,W*0.06,H*0.26);
+  ctx.fillStyle='#7a7aaa'; ctx.fillRect(W*0.66,H*0.37,W*0.26,H*0.17); // mattress
+  // Window (left)
+  ctx.fillStyle='#0a1535'; ctx.fillRect(W*0.08,H*0.1, W*0.15,H*0.2);
+  ctx.fillStyle='#1a3060'; ctx.fillRect(W*0.08,H*0.1, W*0.15,H*0.2);
+  ctx.fillStyle='#3a3050'; ctx.fillRect(W*0.12,H*0.1, 2, H*0.2);
+  ctx.fillStyle='#3a3050'; ctx.fillRect(W*0.08,H*0.19, W*0.15, 2);
+  // Poster on wall
+  ctx.fillStyle='#2a1a50'; ctx.fillRect(W*0.38,H*0.08,W*0.12,H*0.16);
+  ctx.fillStyle='#7c5cbf'; ctx.fillRect(W*0.40,H*0.10,W*0.08,H*0.03);
+}
+
+function drawSchoolHall(ctx, W, H, c) {
+  // Lockers
+  const lc=['#1a2848','#162040','#1e2a50'];
+  for(let i=0;i<9;i++){
+    ctx.fillStyle=lc[i%3];
+    ctx.fillRect(i*(W*0.11)+4, H*0.08, W*0.1, H*0.46);
+    ctx.fillStyle='#0a1020';
+    ctx.fillRect(i*(W*0.11)+4, H*0.08, 2, H*0.46);
+    ctx.fillStyle='#3d8aed'; // lock
+    ctx.fillRect(i*(W*0.11)+W*0.04, H*0.28, 6, 6);
+  }
+  // Floor tiles
+  ctx.fillStyle='rgba(61,138,237,0.05)';
+  for(let x=0;x<W;x+=32) ctx.fillRect(x,H*0.56,32,H*0.44);
+}
+
+function drawClassroom(ctx, W, H, c) {
+  // Whiteboard
+  ctx.fillStyle='#e8eaf8'; ctx.fillRect(W*0.1,H*0.06,W*0.8,H*0.28);
+  ctx.fillStyle='#c0c4e0'; ctx.fillRect(W*0.1,H*0.06,W*0.8,4);
+  ctx.fillStyle='#7a7aaa'; ctx.fillRect(W*0.1,H*0.06,4,H*0.28);
+  // Desk rows
+  for(let col=0;col<4;col++){
+    ctx.fillStyle='#2a2040';
+    ctx.fillRect(W*0.07+col*W*0.23, H*0.55, W*0.18, 8);
+  }
+}
+
+function drawCafeteria(ctx, W, H, c) {
+  // Tables
+  for(let i=0;i<3;i++){
+    ctx.fillStyle='#1a1535';
+    ctx.fillRect(W*0.05+i*W*0.3, H*0.52, W*0.24, 10);
+    ctx.fillStyle='#0f0f25';
+    ctx.fillRect(W*0.05+i*W*0.3, H*0.52, W*0.24, 3);
+  }
+  // Trays
+  ctx.fillStyle='#3d8aed';
+  ctx.fillRect(W*0.08, H*0.48, 28, 6);
+  ctx.fillRect(W*0.38, H*0.48, 28, 6);
+}
+
+function drawCounselorOffice(ctx, W, H, c) {
+  // Desk
+  ctx.fillStyle='#2a1810'; ctx.fillRect(W*0.3,H*0.48,W*0.4,12);
+  // Plant
+  ctx.fillStyle='#1a4a20'; ctx.fillRect(W*0.75,H*0.38,12,H*0.18);
+  ctx.fillStyle='#2a6a30'; ctx.fillRect(W*0.72,H*0.28,20,16);
+  ctx.fillStyle='#3a8a40'; ctx.fillRect(W*0.74,H*0.22,14,12);
+  // Diploma on wall
+  ctx.fillStyle='#2a1a08'; ctx.fillRect(W*0.12,H*0.1,W*0.14,H*0.16);
+  ctx.fillStyle='#7a5a20'; ctx.fillRect(W*0.13,H*0.11,W*0.12,H*0.14);
+  // Shelves
+  ctx.fillStyle='#2a2040'; ctx.fillRect(W*0.55,H*0.1,W*0.22,4);
+  ctx.fillStyle='#3d5080'; ctx.fillRect(W*0.56,H*0.12,8,H*0.1);
+  ctx.fillStyle='#5d3060'; ctx.fillRect(W*0.66,H*0.12,8,H*0.12);
+  ctx.fillStyle='#203d60'; ctx.fillRect(W*0.57,H*0.12,7,H*0.09);
+}
+
+function drawBathroom(ctx, W, H, c) {
+  // Tile wall
+  ctx.fillStyle='rgba(255,255,255,0.03)';
+  for(let x=0;x<W;x+=24) for(let y=0;y<H*0.55;y+=24) ctx.fillRect(x,y,22,22);
+  // Sink
+  ctx.fillStyle='#1a2030'; ctx.fillRect(W*0.1,H*0.42,W*0.15,H*0.12);
+  ctx.fillStyle='#2a3040'; ctx.fillRect(W*0.11,H*0.44,W*0.13,H*0.09);
+  // Mirror
+  ctx.fillStyle='#0a1530'; ctx.fillRect(W*0.1,H*0.1,W*0.15,H*0.22);
+  ctx.fillStyle='rgba(100,150,200,0.12)'; ctx.fillRect(W*0.11,H*0.11,W*0.13,H*0.2);
+}
+
+function drawOutside(ctx, W, H, c) {
+  // Night sky with stars
+  ctx.fillStyle='#050a1a'; ctx.fillRect(0,0,W,H*0.6);
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  for(let i=0;i<50;i++){
+    const sx=(i*73+31)%W; const sy=(i*47+11)%(H*0.55);
+    ctx.fillRect(sx,sy,(i%3===0)?2:1,(i%3===0)?2:1);
+  }
+  // Moon
+  ctx.fillStyle='#e8eaf0'; ctx.fillRect(W*0.78,H*0.05,20,20);
+  ctx.fillStyle='#0a0a1a'; ctx.fillRect(W*0.82,H*0.04,20,20);
+  // Ground / grass
+  ctx.fillStyle='#0a1008'; ctx.fillRect(0,H*0.6,W,H*0.4);
+  // Building silhouette (school)
+  ctx.fillStyle='#05080f';
+  ctx.fillRect(W*0.1,H*0.3,W*0.8,H*0.32);
+  ctx.fillRect(W*0.4,H*0.15,W*0.2,H*0.16);
+  // Windows (lit)
+  ctx.fillStyle='rgba(255,220,100,0.2)';
+  for(let col=0;col<6;col++) for(let row=0;row<2;row++)
+    ctx.fillRect(W*0.13+col*W*0.12, H*0.33+row*H*0.1, W*0.06, H*0.06);
+}
+
+/* ── Pixel character drawing ── */
+function drawCharacter(canvasEl, type, emotion) {
+  const ctx = canvasEl.getContext('2d');
+  const W   = canvasEl.width;
+  const H   = canvasEl.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Pixel scale: 1 unit = 4px at 72×108 canvas
+  const S = 4;
+
+  const palettes = {
+    alex:      { skin:'#e8b490', hair:'#3a2010', shirt:'#7c5cbf', pants:'#1a2848', shoe:'#0a0a14' },
+    jordan:    { skin:'#c8a870', hair:'#1a1008', shirt:'#3d8aed', pants:'#1a2030', shoe:'#0a0a14' },
+    tyler:     { skin:'#f0c090', hair:'#1a0a00', shirt:'#ed3d5a', pants:'#0a1020', shoe:'#0a0a14' },
+    maya:      { skin:'#c07850', hair:'#0a0a00', shirt:'#ed7a3d', pants:'#1a0020', shoe:'#0a0a14' },
+    counselor: { skin:'#b87848', hair:'#0a0a0a', shirt:'#2a5030', pants:'#1a2010', shoe:'#0a0a14' },
+    parent:    { skin:'#d09060', hair:'#1a0808', shirt:'#2a2050', pants:'#1a1830', shoe:'#0a0a14' },
+  };
+
+  const p = palettes[type] || palettes.alex;
+
+  // Emotion-based mouth/eyes
+  const mouths = {
+    neutral: [[4,10],[5,10],[6,10]],
+    sad:     [[3,11],[4,10],[5,10],[6,10],[7,11]],
+    angry:   [[3,10],[4,11],[5,11],[6,11],[7,10]],
+    happy:   [[3,10],[4,9],[5,9],[6,9],[7,10]],
+    scared:  [[4,9],[5,10],[6,9],[4,10],[6,10]],
+    crying:  [[3,11],[4,10],[5,10],[6,10],[7,11]],
+  };
+  const eyes = {
+    neutral: [[3,7],[6,7]],
+    sad:     [[3,8],[6,8]],
+    angry:   [[3,7],[6,7],[3,6],[6,6]], // angry brow
+    happy:   [[3,7],[6,7]],
+    scared:  [[3,7],[6,7],[2,7],[7,7]],
+    crying:  [[3,7],[6,7],[3,9],[6,9]], // tear drops
+  };
+
+  function px(gx,gy,color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(gx*S, gy*S, S, S);
+  }
+
+  // Body pixel grid (18W × 27H in grid units, displayed at S px each)
+  // Head
+  [[3,1],[4,1],[5,1],[6,1],[7,1],
+   [2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+   [2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
+   [2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
+   [2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
+   [2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
+   [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],
+   [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],
+   [3,9],[4,9],[5,9],[6,9],[7,9],
+  ].forEach(([gx,gy]) => px(gx,gy,p.skin));
+
+  // Hair
+  [[3,1],[4,1],[5,1],[6,1],[7,1],
+   [2,2],[3,2],[7,2],[8,2],
+   [2,3],[8,3],
+  ].forEach(([gx,gy]) => px(gx,gy,p.hair));
+
+  // Eyes
+  (eyes[emotion]||eyes.neutral).forEach(([gx,gy]) => px(gx,gy,'#1a0a0a'));
+
+  // Mouth
+  (mouths[emotion]||mouths.neutral).forEach(([gx,gy]) => px(gx,gy,'#8a3020'));
+
+  // Neck
+  [[4,10],[5,10],[6,10]].forEach(([gx,gy]) => px(gx,gy,p.skin));
+
+  // Shirt / torso
+  [[2,11],[3,11],[4,11],[5,11],[6,11],[7,11],[8,11],
+   [2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],
+   [2,13],[3,13],[4,13],[5,13],[6,13],[7,13],[8,13],
+   [3,14],[4,14],[5,14],[6,14],[7,14],
+  ].forEach(([gx,gy]) => px(gx,gy,p.shirt));
+
+  // Arms
+  [[1,11],[1,12],[1,13],[0,13],[0,14],   // left arm
+   [9,11],[9,12],[9,13],[10,13],[10,14], // right arm
+  ].forEach(([gx,gy]) => px(gx,gy,p.shirt));
+
+  // Hands
+  [[0,14],[0,15],[1,15]].forEach(([gx,gy]) => px(gx,gy,p.skin));
+  [[10,14],[10,15],[9,15]].forEach(([gx,gy]) => px(gx,gy,p.skin));
+
+  // Pants / legs
+  [[3,15],[4,15],[5,15],[6,15],[7,15],
+   [3,16],[4,16],[5,16],[6,16],[7,16],
+   [3,17],[4,17],          [6,17],[7,17],
+   [3,18],[4,18],          [6,18],[7,18],
+   [3,19],[4,19],          [6,19],[7,19],
+  ].forEach(([gx,gy]) => px(gx,gy,p.pants));
+
+  // Shoes
+  [[2,20],[3,20],[4,20],[5,20],   // left shoe
+   [6,20],[7,20],[8,20],[9,20],   // right shoe
+  ].forEach(([gx,gy]) => px(gx,gy,p.shoe));
+}
+
+/* ── Render characters in scene ── */
+function renderCharacters(chars) {
+  const layer = document.getElementById('character-layer');
+  layer.innerHTML = '';
+  chars.forEach(c => {
+    const slot = document.createElement('div');
+    slot.className = 'char-slot';
+    const cv = document.createElement('canvas');
+    cv.className  = 'char-canvas';
+    cv.width  = 72;
+    cv.height = 108;
+    const lbl = document.createElement('div');
+    lbl.className = 'char-name-tag';
+    lbl.textContent = c.label || c.type;
+    slot.appendChild(cv);
+    slot.appendChild(lbl);
+    layer.appendChild(slot);
+    drawCharacter(cv, c.type, c.emotion || 'neutral');
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   GAME STATE
+══════════════════════════════════════════════════ */
+const state = {
+  chapter:   0,   // 0-4
+  insight:   0,   // 0-100 — how much the player has gained insight into Alex's inner world
+  choices:   {},  // key → chosen option id
+  ending:    null,
+};
+
+function addInsight(n) {
+  state.insight = Math.min(100, state.insight + n);
+  document.getElementById('insight-bar').style.width = state.insight + '%';
+}
+
+function updateDots(chapterIdx) {
+  for (let i=0;i<5;i++) {
+    const d = document.getElementById('dot-'+i);
+    d.className = 'ch-dot' + (i < chapterIdx ? ' done' : i === chapterIdx ? ' current' : '');
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   SCENE RENDERING
+══════════════════════════════════════════════════ */
+let currentScene  = null;
+let sceneQueue    = [];  // scenes to show in sequence before choices
+let queueIdx      = 0;
+
+/*
+  A "scene" object:
+  {
+    id:         string,
+    bg:         string (key of BG_SCENES),
+    bgMusic:    number (0-4),
+    location:   string,
+    title:      string,
+    chars:      [{type, emotion, label}],
+    blocks:     [ {type:'p'|'speech'|'callout', ...} ],
+    choices:    [ {id, text, cls, next, insightDelta, sfx} ] | null,
+    next:       string | null   (if no choices, auto-advance to this scene id)
+  }
+*/
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function fadeTransition(callback, duration=350) {
+  const f = document.getElementById('fade');
+  f.classList.add('on');
+  setTimeout(() => {
+    callback();
+    f.classList.remove('on');
+  }, duration);
+}
+
+function renderScene(scene) {
+  currentScene = scene;
+
+  // Background
+  drawSceneBg(scene.bg || 'bedroom');
+
+  // Characters
+  renderCharacters(scene.chars || []);
+
+  // Top bar
+  document.getElementById('chapter-label').textContent =
+    'CHAPTER ' + (state.chapter + 1) + (scene.chapterName ? ': ' + scene.chapterName : '');
+  updateDots(state.chapter);
+
+  // Location + title
+  document.getElementById('scene-location').textContent = scene.location || '';
+  document.getElementById('scene-title').textContent    = scene.title    || '';
+
+  // Narrative blocks
+  const nb = document.getElementById('narrative-box');
+  nb.innerHTML = '';
+  (scene.blocks || []).forEach(b => {
+    nb.appendChild(buildBlock(b));
+  });
+  nb.scrollTop = 0;
+
+  // Choices or Next button
+  const ca   = document.getElementById('choice-area');
+  const nBtn = document.getElementById('next-btn');
+  ca.innerHTML = '';
+  nBtn.style.display = 'none';
+
+  if (scene.choices && scene.choices.length > 0) {
+    scene.choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn ' + (ch.cls || 'neut');
+      btn.textContent = ch.text;
+      btn.onclick = () => handleChoice(ch);
+      ca.appendChild(btn);
+    });
+  } else if (scene.next) {
+    nBtn.style.display = 'block';
+    nBtn.textContent   = (scene.nextLabel || 'CONTINUE') + ' ▶';
+  }
+}
+
+function buildBlock(b) {
+  const el = document.createElement('div');
+  if (b.type === 'p') {
+    el.className  = 'narr-p';
+    el.innerHTML  = b.text;
+  } else if (b.type === 'speech') {
+    el.className  = 'speech ' + (b.speaker || '');
+    el.innerHTML  = '<span class="speech-who">' + (b.who||'') + '</span>' + b.text;
+  } else if (b.type === 'callout') {
+    el.className  = 'callout ' + (b.style || 'info');
+    el.innerHTML  = (b.title ? '<div class="callout-title">◆ '+b.title+'</div>' : '') + b.text;
+  }
+  return el;
+}
+
+function handleChoice(ch) {
+  state.choices[ch.id] = true;
+  if (ch.insightDelta) addInsight(ch.insightDelta);
+  if (ch.sfx === 'pos')  sfxPos();
+  else if (ch.sfx === 'neg') sfxNeg();
+  else sfxConfirm();
+
+  const nextId = typeof ch.next === 'function' ? ch.next() : ch.next;
+  if (!nextId) return;
+  const nextScene = SCENES[nextId];
+  if (!nextScene) { console.warn('Missing scene:', nextId); return; }
+
+  fadeTransition(() => {
+    if (nextScene._isEnding) {
+      showEnding(nextScene);
+    } else {
+      renderScene(nextScene);
+    }
+  });
+}
+
+function advanceScene() {
+  if (!currentScene || !currentScene.next) return;
+  sfxClick();
+  const nextId = typeof currentScene.next === 'function'
+    ? currentScene.next()
+    : currentScene.next;
+  const nextScene = SCENES[nextId];
+  if (!nextScene) { console.warn('Missing scene:', nextId); return; }
+  fadeTransition(() => {
+    if (nextScene._isEnding) showEnding(nextScene);
+    else renderScene(nextScene);
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   ENDING RENDERER
+══════════════════════════════════════════════════ */
+function showEnding(endingData) {
+  stopBgMusic();
+  if (endingData.music !== undefined) playBgMusic(endingData.music);
+
+  document.getElementById('end-badge').textContent  = endingData.badge  || 'GAME COMPLETE';
+  document.getElementById('end-title').textContent  = endingData.title  || '';
+  document.getElementById('end-summary').innerHTML  = endingData.summary || '';
+
+  const skills = document.getElementById('sel-skills');
+  skills.innerHTML = '<p style="font-size:8px;color:var(--green);margin-bottom:6px">SEL SKILLS EXPLORED</p>';
+  (endingData.selSkills || []).forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'sel-skill';
+    d.innerHTML = s;
+    skills.appendChild(d);
+  });
+
+  document.getElementById('discussion-box').innerHTML =
+    '<h3>DISCUSSION QUESTIONS</h3><ul>' +
+    (endingData.discussion || []).map(q => '<li>'+q+'</li>').join('') +
+    '</ul>';
+
+  showScreen('end-screen');
+  sfxChapter();
+}
+
+/* ══════════════════════════════════════════════════
+   GAME START / REPLAY
+══════════════════════════════════════════════════ */
+function startGame() {
+  sfxChapter();
+  state.chapter = 0;
+  state.insight = 0;
+  state.choices = {};
+  document.getElementById('insight-bar').style.width = '0%';
+  fadeTransition(() => {
+    showScreen('game-screen');
+    playBgMusic(1);
+    renderScene(SCENES['c1_s1']);
+  });
+}
+
+function replayGame() {
+  fadeTransition(() => {
+    stopBgMusic();
+    state.chapter=0; state.insight=0; state.choices={};
+    document.getElementById('insight-bar').style.width='0%';
+    showScreen('title-screen');
+    playBgMusic(0);
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  drawSceneBg('bedroom'); // warm-up canvas
+  playBgMusic(0);
+  // SCENES object is defined in Part 3+ below
+});
+
+/* ══════════════════════════════════════════════════
+   SCENES  — defined in Parts 3-5
+══════════════════════════════════════════════════ */
+const SCENES = {};
 </script>
+</body>
+</html>
 
 </body>
 </html>
