@@ -575,6 +575,9 @@
   <section id="title-screen" class="screen active">
     <p class="brand-line">The Staff Lounge Presents</p>
 
+    <canvas id="title-canvas" width="780" height="130"
+      style="width:100%;max-width:780px;image-rendering:pixelated;display:block;"></canvas>
+
     <h1 class="game-title">THE OTHER SIDE</h1>
     <p class="game-tagline">An SEL Choose-Your-Own-Adventure</p>
 
@@ -1132,9 +1135,8 @@ function updateDots(chapterIdx) {
 /* ══════════════════════════════════════════════════
    SCENE RENDERING
 ══════════════════════════════════════════════════ */
-let currentScene  = null;
-let sceneQueue    = [];  // scenes to show in sequence before choices
-let queueIdx      = 0;
+let currentScene        = null;
+let _currentChapterName = '';
 
 /*
   A "scene" object:
@@ -1168,6 +1170,17 @@ function fadeTransition(callback, duration=350) {
 function renderScene(scene) {
   currentScene = scene;
 
+  // Update chapter from scene if defined
+  if (scene._chapterIdx !== undefined) {
+    state.chapter = scene._chapterIdx;
+  }
+
+  // Play background music change if scene specifies it
+  if (scene.bgMusic !== undefined) {
+    stopBgMusic();
+    playBgMusic(scene.bgMusic);
+  }
+
   // Background
   drawSceneBg(scene.bg || 'bedroom');
 
@@ -1175,8 +1188,10 @@ function renderScene(scene) {
   renderCharacters(scene.chars || []);
 
   // Top bar
+  const chName = scene.chapterName || _currentChapterName;
+  if (scene.chapterName) _currentChapterName = scene.chapterName;
   document.getElementById('chapter-label').textContent =
-    'CHAPTER ' + (state.chapter + 1) + (scene.chapterName ? ': ' + scene.chapterName : '');
+    'CHAPTER ' + (state.chapter + 1) + (chName ? ': ' + chName : '');
   updateDots(state.chapter);
 
   // Location + title
@@ -1317,12 +1332,89 @@ function replayGame() {
 }
 
 /* ══════════════════════════════════════════════════
+   TITLE SCREEN ART
+══════════════════════════════════════════════════ */
+function drawTitleArt() {
+  const cv  = document.getElementById('title-canvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Night sky backdrop
+  ctx.fillStyle = '#07071a';
+  ctx.fillRect(0,0,W,H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  for(let i=0;i<80;i++){
+    const sx=(i*113+7)%W; const sy=(i*61+3)%(H*0.7);
+    ctx.fillRect(sx,sy,(i%5===0)?2:1,(i%5===0)?2:1);
+  }
+
+  // Moon
+  ctx.fillStyle = '#dde0f8';
+  ctx.fillRect(W*0.85, 8, 22, 22);
+  ctx.fillStyle = '#07071a';
+  ctx.fillRect(W*0.87, 6, 22, 22); // crescent cutout
+
+  // Silhouette cityscape / school building
+  const bldgs = [
+    [0,     H*0.5, W*0.12, H*0.5],
+    [W*0.1, H*0.4, W*0.14, H*0.6],
+    [W*0.22,H*0.35,W*0.18, H*0.65],  // main school
+    [W*0.38,H*0.45,W*0.1,  H*0.55],
+    [W*0.46,H*0.3, W*0.22, H*0.7],   // big building center
+    [W*0.65,H*0.42,W*0.14, H*0.58],
+    [W*0.77,H*0.38,W*0.12, H*0.62],
+    [W*0.87,H*0.48,W*0.13, H*0.52],
+  ];
+  bldgs.forEach(([x,y,w,h]) => {
+    ctx.fillStyle='#05050f'; ctx.fillRect(x,y,w,H-y);
+    // windows
+    ctx.fillStyle='rgba(255,220,80,0.15)';
+    for(let wx=x+4;wx<x+w-4;wx+=10) for(let wy=y+4;wy<H-6;wy+=10)
+      if(Math.random()>0.4) ctx.fillRect(wx,wy,6,6);
+  });
+
+  // Road / ground
+  ctx.fillStyle='#0a0a18'; ctx.fillRect(0,H*0.72,W,H*0.28);
+  ctx.fillStyle='#1a1a30'; ctx.fillRect(0,H*0.72,W,3);
+
+  // Two pixel silhouette characters face-to-face center
+  // Left figure (Alex — purple shirt)
+  const lx = W*0.42, ly = H*0.5, S = 3;
+  [[1,0],[2,0],[3,0],[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[4,3],[1,4],[2,4],[3,4],[1,5],[2,5],[3,5],[1,6],[3,6],[1,7],[3,7]]
+  .forEach(([gx,gy])=>{ ctx.fillStyle='#7c5cbf'; ctx.fillRect(lx+gx*S,ly+gy*S,S,S); });
+
+  // Right figure (Jordan — blue shirt, facing left = mirrored)
+  const rx = W*0.54, ry = H*0.5;
+  [[1,0],[2,0],[3,0],[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[4,3],[1,4],[2,4],[3,4],[1,5],[2,5],[3,5],[1,6],[3,6],[1,7],[3,7]]
+  .forEach(([gx,gy])=>{ ctx.fillStyle='#3d8aed'; ctx.fillRect(rx+(4-gx)*S,ry+gy*S,S,S); });
+
+  // Ground shadow under figures
+  ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(lx,ly+8*S,5*S,3);
+  ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(rx,ry+8*S,5*S,3);
+
+  // Pixel vignette
+  const vg = ctx.createRadialGradient(W/2,H/2,H*0.2,W/2,H/2,W*0.65);
+  vg.addColorStop(0,'transparent'); vg.addColorStop(1,'rgba(0,0,20,0.6)');
+  ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+}
+
+/* ══════════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════════ */
 window.addEventListener('load', () => {
-  drawSceneBg('bedroom'); // warm-up canvas
+  drawTitleArt();
+  drawSceneBg('bedroom'); // warm-up scene canvas
   playBgMusic(0);
-  // SCENES object is defined in Part 3+ below
+  // Animate title canvas on a slow interval (stars twinkle)
+  setInterval(() => {
+    if (document.getElementById('title-screen').classList.contains('active')) {
+      drawTitleArt();
+    }
+  }, 2000);
 });
 
 /* ══════════════════════════════════════════════════
@@ -1337,6 +1429,7 @@ const SCENES = {};
 
 SCENES['c1_s1'] = {
   id: 'c1_s1',
+  _chapterIdx: 0,
   bg: 'bedroom',
   bgMusic: 2,
   location: 'MONDAY · 4:47 PM · ALEX\'S BEDROOM',
@@ -1505,6 +1598,7 @@ SCENES['c1_s5_walkaway'] = {
 
 SCENES['c2_s1'] = {
   id: 'c2_s1',
+  _chapterIdx: 1,
   bg: 'classroom',
   bgMusic: 1,
   location: 'TUESDAY · 9:30 AM · MATH CLASS',
@@ -1646,6 +1740,7 @@ SCENES['c2_s4'] = {
 
 SCENES['c3_s1'] = {
   id: 'c3_s1',
+  _chapterIdx: 2,
   bg: 'cafeteria',
   bgMusic: 1,
   location: 'TUESDAY · 12:05 PM · CAFETERIA',
@@ -1798,6 +1893,7 @@ SCENES['c3_s4'] = {
 
 SCENES['c4_s1'] = {
   id: 'c4_s1',
+  _chapterIdx: 3,
   bg: 'bedroom',
   bgMusic: 2,
   location: 'TUESDAY NIGHT · ALEX\'S APARTMENT',
@@ -1994,6 +2090,7 @@ SCENES['c4_s6_breathe'] = {
 
 SCENES['c5_s1'] = {
   id: 'c5_s1',
+  _chapterIdx: 4,
   bg: 'bathroom',
   bgMusic: 2,
   location: 'THURSDAY · 10:20 AM · RESTROOM NEAR GYM',
@@ -2167,62 +2264,8 @@ Walking out didn't make it go away. It just made Alex carry it alone.<br><br>
   ],
 };
 
-/* ── Chapter tracker: update chapter index on chapter entry ── */
-['c2_s1','c3_s1','c4_s1','c5_s1'].forEach((id,i) => {
-  const orig = SCENES[id];
-  const origRender = id;
-  if (orig) {
-    const chIdx = i+1;
-    const origNext = orig.next;
-    // Wrap scene to update chapter when rendered
-    const origBlocks = orig.blocks;
-    orig._chapterIdx = chIdx;
-  }
-});
-
-// Patch renderScene to update state.chapter from scene._chapterIdx
-const _origRenderScene = renderScene;
-window._patchedRenderScene = function(scene) {
-  if (scene._chapterIdx !== undefined) {
-    state.chapter = scene._chapterIdx;
-    document.getElementById('insight-bar').style.width = state.insight + '%';
-  }
-  _origRenderScene(scene);
-};
-// Override renderScene
-window.renderScene = window._patchedRenderScene;
-// Also patch advanceScene and handleChoice to use window.renderScene
-const _origHandleChoice = handleChoice;
-// Re-patch handleChoice to call window.renderScene
-function handleChoice(ch) {
-  state.choices[ch.id] = true;
-  if (ch.insightDelta) addInsight(ch.insightDelta);
-  if (ch.sfx === 'pos')  sfxPos();
-  else if (ch.sfx === 'neg') sfxNeg();
-  else sfxConfirm();
-  const nextId = typeof ch.next === 'function' ? ch.next() : ch.next;
-  if (!nextId) return;
-  const nextScene = SCENES[nextId];
-  if (!nextScene) { console.warn('Missing scene:', nextId); return; }
-  fadeTransition(() => {
-    if (nextScene._isEnding) showEnding(nextScene);
-    else window.renderScene(nextScene);
-  });
-}
-
-function advanceScene() {
-  if (!currentScene || !currentScene.next) return;
-  sfxClick();
-  const nextId = typeof currentScene.next === 'function'
-    ? currentScene.next()
-    : currentScene.next;
-  const nextScene = SCENES[nextId];
-  if (!nextScene) { console.warn('Missing scene:', nextId); return; }
-  fadeTransition(() => {
-    if (nextScene._isEnding) showEnding(nextScene);
-    else window.renderScene(nextScene);
-  });
-}
+/* ── All scenes complete. _chapterIdx is set directly on chapter-opening
+   scenes above. renderScene() reads it and updates state.chapter. ── */
 
 </script>
 </body>
